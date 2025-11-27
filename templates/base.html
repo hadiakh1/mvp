@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LawyerConnect MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <nav class="bg-slate-900 text-white">
+    <div class="max-w-5xl mx-auto flex items-center justify-between py-3 px-4">
+      <a href="{{ url_for('main.index') }}" class="font-semibold text-lg">LawyerConnect</a>
+      <div class="space-x-4">
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_lawyer %}
+            <a href="{{ url_for('main.lawyer_dashboard') }}" class="hover:underline">Dashboard</a>
+          {% else %}
+            <a href="{{ url_for('main.user_dashboard') }}" class="hover:underline">Dashboard</a>
+          {% endif %}
+          <a href="{{ url_for('main.logout') }}" class="hover:underline">Logout</a>
+        {% else %}
+          <a href="{{ url_for('main.login') }}" class="hover:underline">Login</a>
+          <a href="{{ url_for('main.signup_user') }}" class="hover:underline">Sign Up (User)</a>
+          <a href="{{ url_for('main.signup_lawyer') }}" class="hover:underline">Sign Up (Lawyer)</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto mt-8 px-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2 mb-4">
+          {% for category, message in messages %}
+            {% set color = 'bg-green-100 text-green-800 border-green-300' if category == 'success'
+              else 'bg-red-100 text-red-800 border-red-300' if category == 'error'
+              else 'bg-blue-100 text-blue-800 border-blue-300' %}
+            <div class="border {{ color }} text-sm px-3 py-2 rounded">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="mt-12 py-6 text-center text-xs text-slate-500">
+    &copy; {{ 2025 }} LawyerConnect MVP
+  </footer>
+</body>
+</html>
+
+
+

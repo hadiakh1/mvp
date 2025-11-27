@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-4">
+  <h2 class="text-2xl font-semibold">User Dashboard</h2>
+  <a href="{{ url_for('main.submit_issue') }}"
+     class="px-4 py-2 rounded-md bg-sky-600 text-white text-sm font-medium hover:bg-sky-700">
+    Submit New Issue
+  </a>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6">
+  <section class="bg-white rounded-lg shadow-sm p-4">
+    <h3 class="font-semibold mb-2 text-slate-800">Your Issues</h3>
+    {% if issues %}
+      <ul class="space-y-2 text-sm">
+        {% for issue in issues %}
+        <li class="border rounded px-3 py-2">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="font-medium">{{ issue.title }}</p>
+              <p class="text-xs text-slate-500">{{ issue.category }}</p>
+            </div>
+            <a href="{{ url_for('main.lawyer_matches', issue_id=issue.id) }}"
+               class="text-xs text-sky-700 underline">
+              View Matches
+            </a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-slate-500">You have not submitted any issues yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="bg-white rounded-lg shadow-sm p-4">
+    <h3 class="font-semibold mb-2 text-slate-800">Your Chats</h3>
+    {% if chats %}
+      <ul class="space-y-2 text-sm">
+        {% for chat in chats %}
+        <li class="border rounded px-3 py-2 flex justify-between items-center">
+          <div>
+            <p class="font-medium">
+              With lawyer: {{ chat.lawyer.name }}
+            </p>
+            {% if chat.issue %}
+            <p class="text-xs text-slate-500">Issue: {{ chat.issue.title }}</p>
+            {% endif %}
+          </div>
+          <a href="{{ url_for('main.chat_view', chat_id=chat.id) }}"
+             class="text-xs text-sky-700 underline">
+            Open Chat
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-slate-500">No active chats yet.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+
+
+

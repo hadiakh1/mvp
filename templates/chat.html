@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-4">Chat</h2>
+
+<div class="mb-4 text-sm">
+  <p>
+    <span class="font-medium">You are:</span>
+    {{ 'Lawyer' if current_user.is_lawyer else 'User' }}
+  </p>
+  <p>
+    <span class="font-medium">Chat between:</span>
+    {{ chat.user.name }} (User) and {{ chat.lawyer.name }} (Lawyer)
+  </p>
+  {% if chat.issue %}
+  <p>
+    <span class="font-medium">Issue:</span> {{ chat.issue.title }} ({{ chat.issue.category }})
+  </p>
+  {% endif %}
+</div>
+
+<div class="mb-4 flex items-center justify-between">
+  <div>
+    {% if chat.jitsi_link %}
+      <p class="text-sm">
+        <span class="font-medium">Video Call Link:</span>
+        <a href="{{ chat.jitsi_link }}" target="_blank" class="text-sky-700 underline break-all">
+          {{ chat.jitsi_link }}
+        </a>
+      </p>
+    {% else %}
+      <p class="text-xs text-slate-500">
+        No video link generated yet.
+      </p>
+    {% endif %}
+  </div>
+  <form method="post" action="{{ url_for('main.generate_jitsi_link', chat_id=chat.id) }}">
+    <button type="submit"
+            class="px-3 py-2 rounded-md bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700">
+      Generate Video Link
+    </button>
+  </form>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm p-4 h-80 flex flex-col mb-4">
+  <div class="flex-1 overflow-y-auto space-y-2 text-sm pr-2">
+    {% for m in messages %}
+      {% set is_me = (m.sender_id == current_user.id) %}
+      <div class="flex {% if is_me %}justify-end{% else %}justify-start{% endif %}">
+        <div class="max-w-xs px-3 py-2 rounded-lg
+                    {% if is_me %}bg-sky-600 text-white{% else %}bg-slate-100 text-slate-900{% endif %}">
+          <p class="text-xs font-semibold mb-1">
+            {{ 'You' if is_me else m.sender.name }} ({{ m.sender_role }})
+          </p>
+          <p>{{ m.content }}</p>
+          <p class="text-[10px] mt-1 opacity-70">
+            {{ m.created_at.strftime('%Y-%m-%d %H:%M') }}
+          </p>
+        </div>
+      </div>
+    {% else %}
+      <p class="text-xs text-slate-500">No messages yet. Start the conversation below.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<form method="post" class="flex items-center space-x-2">
+  <textarea name="content" rows="2" required
+            class="flex-1 border rounded px-3 py-2 text-sm"
+            placeholder="Type your message..."></textarea>
+  <button type="submit"
+          class="px-4 py-2 rounded-md bg-sky-600 text-white text-sm font-medium hover:bg-sky-700">
+    Send
+  </button>
+</form>
+
+<p class="mt-4 text-xs">
+  {% if current_user.is_lawyer %}
+    <a href="{{ url_for('main.lawyer_dashboard') }}" class="text-sky-700 underline">Back to dashboard</a>
+  {% else %}
+    <a href="{{ url_for('main.user_dashboard') }}" class="text-sky-700 underline">Back to dashboard</a>
+  {% endif %}
+</p>
+{% endblock %}
+
+
+

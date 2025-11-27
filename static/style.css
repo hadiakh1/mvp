@@ -1,0 +1,8 @@
+/* Minimal custom tweaks on top of Tailwind */
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+
+

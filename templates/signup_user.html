@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white shadow-sm rounded-lg p-6">
+  <h2 class="text-2xl font-semibold mb-4">Sign Up as a User</h2>
+  <form method="post" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Name</label>
+      <input name="name" required class="mt-1 w-full border rounded px-3 py-2 text-sm" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Email</label>
+      <input type="email" name="email" required class="mt-1 w-full border rounded px-3 py-2 text-sm" />
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">Password</label>
+      <input type="password" name="password" required class="mt-1 w-full border rounded px-3 py-2 text-sm" />
+    </div>
+    <button type="submit"
+            class="w-full bg-sky-600 text-white py-2 rounded-md text-sm font-medium hover:bg-sky-700">
+      Create Account
+    </button>
+  </form>
+  <p class="mt-4 text-xs text-slate-500">
+    Already have an account?
+    <a class="text-sky-700 underline" href="{{ url_for('main.login') }}">Log in</a>.
+  </p>
+</div>
+{% endblock %}
+
+
+
