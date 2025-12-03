@@ -174,13 +174,19 @@ def lawyer_matches(issue_id):
         return redirect(url_for("main.user_dashboard"))
 
     # Match lawyers whose expertise includes the issue category
+    # Use explicit join with User table to ensure we get lawyers with valid user accounts
     matching_lawyers = (
-        LawyerProfile.query.filter(
+        LawyerProfile.query.join(User, LawyerProfile.user_id == User.id)
+        .filter(
+            User.is_lawyer == True,
             LawyerProfile.expertise_categories.like(f"%{issue.category}%")
         )
-        .join(User)
         .all()
     )
+    
+    # Debug: Log the count (remove in production)
+    print(f"Found {len(matching_lawyers)} lawyers for category: {issue.category}")
+    
     return render_template(
         "lawyer_matches.html", issue=issue, lawyers=matching_lawyers
     )

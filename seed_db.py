@@ -276,19 +276,17 @@ def seed_database():
     app = create_app()
     
     with app.app_context():
-        # Check if sample lawyers already exist
-        existing_lawyer = User.query.filter_by(email="sarah.mitchell@lawconnect.com").first()
-        if existing_lawyer:
-            print("Sample lawyers already exist in the database. Skipping seed.")
-            return
-        
         print("Seeding database with sample lawyers...")
+        
+        added_count = 0
+        skipped_count = 0
         
         for lawyer_data in SAMPLE_LAWYERS:
             # Check if user already exists
             existing_user = User.query.filter_by(email=lawyer_data["email"]).first()
             if existing_user:
                 print(f"Skipping {lawyer_data['name']} - already exists")
+                skipped_count += 1
                 continue
             
             # Create user
@@ -315,9 +313,16 @@ def seed_database():
             )
             db.session.add(profile)
             print(f"Added lawyer: {lawyer_data['name']}")
+            added_count += 1
         
         db.session.commit()
-        print(f"\nSuccessfully seeded {len(SAMPLE_LAWYERS)} sample lawyers!")
+        print(f"\n✓ Successfully added {added_count} new lawyers!")
+        if skipped_count > 0:
+            print(f"  (Skipped {skipped_count} lawyers that already exist)")
+        
+        # Verify lawyers exist
+        total_lawyers = LawyerProfile.query.count()
+        print(f"\nTotal lawyers in database: {total_lawyers}")
 
 
 if __name__ == "__main__":
