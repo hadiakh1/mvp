@@ -148,9 +148,14 @@ def submit_issue():
         description = request.form.get("description")
         category = request.form.get("category")
         
-        # Client profile fields for matching
-        budget_min = float(request.form.get("budget_min", 0) or 0)
-        budget_max = float(request.form.get("budget_max", 10000) or 10000)
+        # Client profile fields for matching (with defaults for backward compatibility)
+        try:
+            budget_min = float(request.form.get("budget_min", 0) or 0)
+            budget_max = float(request.form.get("budget_max", 10000) or 10000)
+        except (ValueError, TypeError):
+            budget_min = 0.0
+            budget_max = 10000.0
+        
         urgency = request.form.get("urgency", "normal")
         preferred_pricing = request.form.get("preferred_pricing", "hourly")
 
@@ -162,16 +167,27 @@ def submit_issue():
             flash("Minimum budget cannot be greater than maximum budget.", "error")
             return redirect(url_for("main.submit_issue"))
 
-        issue = Issue(
-            user_id=current_user.id,
-            title=title,
-            description=description,
-            category=category,
-            budget_min=budget_min,
-            budget_max=budget_max,
-            urgency=urgency,
-            preferred_pricing=preferred_pricing,
-        )
+        # Create issue with new fields (will use defaults if columns don't exist yet)
+        try:
+            issue = Issue(
+                user_id=current_user.id,
+                title=title,
+                description=description,
+                category=category,
+                budget_min=budget_min,
+                budget_max=budget_max,
+                urgency=urgency,
+                preferred_pricing=preferred_pricing,
+            )
+        except Exception as e:
+            # Fallback for databases without new columns
+            print(f"Warning: Could not create issue with new fields: {e}")
+            issue = Issue(
+                user_id=current_user.id,
+                title=title,
+                description=description,
+                category=category,
+            )
         db.session.add(issue)
         db.session.commit()
 
@@ -189,37 +205,66 @@ def lawyer_matches(issue_id):
         flash("You do not have access to this issue.", "error")
         return redirect(url_for("main.user_dashboard"))
 
-    # Use advanced matching algorithm
-    from .matching import match_lawyers_to_issue
-    
+    # Use advanced matching algorithm (with fallback for old database schema)
     try:
-        # Get all available lawyers
-        all_lawyers = (
-            LawyerProfile.query.join(User, LawyerProfile.user_id == User.id)
-            .filter(User.is_lawyer == True)
-            .all()
-        )
+        from .matching import match_lawyers_to_issue
         
-        # Fallback if join fails
-        if not all_lawyers:
-            all_lawyers = [
-                lp for lp in LawyerProfile.query.all()
-                if lp.user and lp.user.is_lawyer
-            ]
+        # Check if issue has new fields (for backward compatibility)
+        has_new_fields = hasattr(issue, 'budget_min') and hasattr(issue, 'urgency')
         
-        # Get matched lawyers with scores
-        matched_lawyers = match_lawyers_to_issue(issue, all_lawyers)
-        
-        # Filter to only show lawyers with score > 0 (or adjust threshold)
-        matched_lawyers = [(lawyer, score, breakdown) for lawyer, score, breakdown in matched_lawyers if score > 0]
-        
-        print(f"Found {len(matched_lawyers)} matched lawyers for issue: {issue.title}")
+        if has_new_fields:
+            # Get all available lawyers
+            all_lawyers = (
+                LawyerProfile.query.join(User, LawyerProfile.user_id == User.id)
+                .filter(User.is_lawyer == True)
+                .all()
+            )
+            
+            # Fallback if join fails
+            if not all_lawyers:
+                all_lawyers = [
+                    lp for lp in LawyerProfile.query.all()
+                    if lp.user and lp.user.is_lawyer
+                ]
+            
+            # Get matched lawyers with scores
+            matched_lawyers = match_lawyers_to_issue(issue, all_lawyers)
+            
+            # Filter to only show lawyers with score > 0
+            matched_lawyers = [(lawyer, score, breakdown) for lawyer, score, breakdown in matched_lawyers if score > 0]
+            
+            print(f"Found {len(matched_lawyers)} matched lawyers for issue: {issue.title}")
+        else:
+            # Fallback to simple matching for old database schema
+            print("Using simple matching (database not migrated yet)")
+            matching_lawyers = (
+                LawyerProfile.query.join(User, LawyerProfile.user_id == User.id)
+                .filter(
+                    User.is_lawyer == True,
+                    LawyerProfile.expertise_categories.like(f"%{issue.category}%")
+                )
+                .all()
+            )
+            # Convert to new format with dummy scores
+            matched_lawyers = [(lp, 75.0, {'case_type': 100, 'specialization': 75, 'success_rate': lp.case_success_rate * 100, 'availability': 100, 'pricing': 50, 'client_profile': 50}) for lp in matching_lawyers]
         
     except Exception as e:
         print(f"Error in lawyer_matches: {e}")
         import traceback
         traceback.print_exc()
-        matched_lawyers = []
+        # Fallback to simple query
+        try:
+            matching_lawyers = (
+                LawyerProfile.query.join(User, LawyerProfile.user_id == User.id)
+                .filter(
+                    User.is_lawyer == True,
+                    LawyerProfile.expertise_categories.like(f"%{issue.category}%")
+                )
+                .all()
+            )
+            matched_lawyers = [(lp, 75.0, {}) for lp in matching_lawyers]
+        except:
+            matched_lawyers = []
     
     return render_template(
         "lawyer_matches.html", 
