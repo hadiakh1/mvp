@@ -10,11 +10,12 @@
 <body class="bg-slate-50 text-slate-900">
   <nav class="bg-[#800020] text-white">
     <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between py-3 px-4 gap-2 sm:gap-0">
-      <a href="{{ url_for('main.index') }}" class="flex items-center gap-2 font-semibold text-lg">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="LawyerConnect Logo" class="h-8 w-8 object-contain">
+      <a href="{{ url_for('main.index') }}" class="flex items-center gap-3 font-semibold text-lg">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="LawyerConnect Logo" class="h-12 w-12 sm:h-16 sm:w-16 object-contain">
         <span>LawyerConnect</span>
       </a>
       <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-sm sm:text-base">
+        <a href="{{ url_for('main.about') }}" class="hover:underline px-2 py-1">About Us</a>
         {% if current_user.is_authenticated %}
           {% if current_user.is_lawyer %}
             <a href="{{ url_for('main.lawyer_dashboard') }}" class="hover:underline px-2 py-1">Dashboard</a>

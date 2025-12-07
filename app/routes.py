@@ -25,6 +25,11 @@ def index():
     return render_template("landing.html")
 
 
+@main_bp.route("/about")
+def about():
+    return render_template("about.html")
+
+
 @main_bp.route("/signup/user", methods=["GET", "POST"])
 def signup_user():
     if request.method == "POST":
