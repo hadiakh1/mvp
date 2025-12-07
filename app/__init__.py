@@ -28,6 +28,28 @@ def create_app():
 
         # Create database tables if they don't exist
         db.create_all()
+        
+        # Auto-seed database on first deployment (Railway/Render)
+        # Only runs if database is empty
+        try:
+            from .models import LawyerProfile
+            lawyer_count = LawyerProfile.query.count()
+            if lawyer_count == 0:
+                # Database is empty, seed it
+                import os
+                # Only seed in production (when DATABASE_URL is set)
+                if os.environ.get("DATABASE_URL"):
+                    print("Database is empty. Seeding with sample lawyers...")
+                    try:
+                        from seed_db import seed_database
+                        seed_database()
+                        print("✓ Database seeded successfully!")
+                    except Exception as e:
+                        print(f"Warning: Could not seed database: {e}")
+                        # Don't fail app startup if seeding fails
+        except Exception as e:
+            # Silently fail - don't break app startup
+            pass
 
     return app
 
