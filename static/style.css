@@ -1,7 +1,36 @@
-/* Minimal custom tweaks on top of Tailwind */
+/* Maroon theme for LawyerConnect */
 
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Maroon color palette */
+:root {
+  --maroon: #800020;
+  --maroon-dark: #5C0017;
+  --maroon-light: #A0002A;
+  --golden-yellow: #D4AF37;
+  --golden-yellow-light: #E5C158;
+  --golden-yellow-dark: #B8941F;
+}
+
+/* Custom maroon button styles */
+.btn-maroon {
+  background-color: var(--maroon);
+  color: white;
+}
+
+.btn-maroon:hover {
+  background-color: var(--maroon-dark);
+}
+
+.btn-golden {
+  background-color: var(--golden-yellow);
+  color: var(--maroon);
+}
+
+.btn-golden:hover {
+  background-color: var(--golden-yellow-light);
 }
 
 

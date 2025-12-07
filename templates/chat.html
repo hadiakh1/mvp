@@ -24,7 +24,7 @@
     {% if chat.jitsi_link %}
       <p class="text-sm">
         <span class="font-medium">Video Call Link:</span>
-        <a href="{{ chat.jitsi_link }}" target="_blank" class="text-sky-700 underline break-all">
+        <a href="{{ chat.jitsi_link }}" target="_blank" class="text-[#800020] underline break-all hover:text-[#5C0017]">
           {{ chat.jitsi_link }}
         </a>
       </p>
@@ -48,7 +48,7 @@
       {% set is_me = (m.sender_id == current_user.id) %}
       <div class="flex {% if is_me %}justify-end{% else %}justify-start{% endif %}">
         <div class="max-w-xs px-3 py-2 rounded-lg
-                    {% if is_me %}bg-sky-600 text-white{% else %}bg-slate-100 text-slate-900{% endif %}">
+                    {% if is_me %}bg-[#800020] text-white{% else %}bg-slate-100 text-slate-900{% endif %}">
           <p class="text-xs font-semibold mb-1">
             {{ 'You' if is_me else m.sender.name }} ({{ m.sender_role }})
           </p>
@@ -69,16 +69,16 @@
             class="flex-1 border rounded px-3 py-2 text-sm"
             placeholder="Type your message..."></textarea>
   <button type="submit"
-          class="px-4 py-2 rounded-md bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 whitespace-nowrap">
+          class="px-4 py-2 rounded-md bg-[#800020] text-white text-sm font-medium hover:bg-[#5C0017] whitespace-nowrap">
     Send
   </button>
 </form>
 
 <p class="mt-4 text-xs">
   {% if current_user.is_lawyer %}
-    <a href="{{ url_for('main.lawyer_dashboard') }}" class="text-sky-700 underline">Back to dashboard</a>
+    <a href="{{ url_for('main.lawyer_dashboard') }}" class="text-[#800020] underline hover:text-[#5C0017]">Back to dashboard</a>
   {% else %}
-    <a href="{{ url_for('main.user_dashboard') }}" class="text-sky-700 underline">Back to dashboard</a>
+    <a href="{{ url_for('main.user_dashboard') }}" class="text-[#800020] underline hover:text-[#5C0017]">Back to dashboard</a>
   {% endif %}
 </p>
 {% endblock %}
