@@ -14,7 +14,7 @@ instance/
 .webassets-cache
 
 # Database
-*.db
+# lawyerconnect.db - Keep this file for deployment
 *.sqlite
 *.sqlite3
 

@@ -33,21 +33,33 @@ def about():
 @main_bp.route("/signup/user", methods=["GET", "POST"])
 def signup_user():
     if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password = request.form.get("password")
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
 
-        if User.query.filter_by(email=email).first():
-            flash("Email already registered.", "error")
-            return redirect(url_for("main.signup_user"))
+        if not name or not email or not password:
+            flash("Please fill in all fields.", "error")
+            return render_template("signup_user.html")
 
-        user = User(name=name, email=email, is_lawyer=False)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+        try:
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                flash("Email already registered. Please log in instead.", "error")
+                return redirect(url_for("main.login"))
 
-        flash("Account created. Please log in.", "success")
-        return redirect(url_for("main.login"))
+            user = User(name=name, email=email, is_lawyer=False)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+
+            flash("Account created. Please log in.", "success")
+            return redirect(url_for("main.login"))
+        except Exception as e:
+            print(f"Signup error: {e}")
+            import traceback
+            traceback.print_exc()
+            db.session.rollback()
+            flash("An error occurred. Please try again.", "error")
 
     return render_template("signup_user.html")
 
@@ -55,31 +67,51 @@ def signup_user():
 @main_bp.route("/signup/lawyer", methods=["GET", "POST"])
 def signup_lawyer():
     if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password = request.form.get("password")
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
         expertise = request.form.getlist("expertise")
-        experience_description = request.form.get("experience_description")
+        experience_description = request.form.get("experience_description", "").strip()
 
-        if User.query.filter_by(email=email).first():
-            flash("Email already registered.", "error")
-            return redirect(url_for("main.signup_lawyer"))
+        if not name or not email or not password:
+            flash("Please fill in all required fields.", "error")
+            return render_template("signup_lawyer.html", categories=ISSUE_CATEGORIES)
 
-        user = User(name=name, email=email, is_lawyer=True)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.flush()
+        if not expertise:
+            flash("Please select at least one expertise category.", "error")
+            return render_template("signup_lawyer.html", categories=ISSUE_CATEGORIES)
 
-        profile = LawyerProfile(
-            user_id=user.id,
-            expertise_categories=",".join(expertise),
-            experience_description=experience_description,
-        )
-        db.session.add(profile)
-        db.session.commit()
+        if not experience_description:
+            flash("Please provide your experience description.", "error")
+            return render_template("signup_lawyer.html", categories=ISSUE_CATEGORIES)
 
-        flash("Lawyer account created. Please log in.", "success")
-        return redirect(url_for("main.login"))
+        try:
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                flash("Email already registered. Please log in instead.", "error")
+                return redirect(url_for("main.login"))
+
+            user = User(name=name, email=email, is_lawyer=True)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.flush()
+
+            profile = LawyerProfile(
+                user_id=user.id,
+                expertise_categories=",".join(expertise),
+                experience_description=experience_description,
+            )
+            db.session.add(profile)
+            db.session.commit()
+
+            flash("Lawyer account created. Please log in.", "success")
+            return redirect(url_for("main.login"))
+        except Exception as e:
+            print(f"Lawyer signup error: {e}")
+            import traceback
+            traceback.print_exc()
+            db.session.rollback()
+            flash("An error occurred. Please try again.", "error")
 
     return render_template("signup_lawyer.html", categories=ISSUE_CATEGORIES)
 
@@ -87,20 +119,33 @@ def signup_lawyer():
 @main_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "")
 
-        user = User.query.filter_by(email=email).first()
-        if user and user.check_password(password):
-            login_user(user, remember=True)  # Remember user across browser sessions
-            from flask import session
-            session.permanent = True  # Make session permanent
-            flash("Logged in successfully.", "success")
-            if user.is_lawyer:
-                return redirect(url_for("main.lawyer_dashboard"))
-            return redirect(url_for("main.user_dashboard"))
+        if not email or not password:
+            flash("Please provide both email and password.", "error")
+            return render_template("login.html")
 
-        flash("Invalid email or password.", "error")
+        try:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                if user.check_password(password):
+                    login_user(user, remember=True)  # Remember user across browser sessions
+                    from flask import session
+                    session.permanent = True  # Make session permanent
+                    flash("Logged in successfully.", "success")
+                    if user.is_lawyer:
+                        return redirect(url_for("main.lawyer_dashboard"))
+                    return redirect(url_for("main.user_dashboard"))
+                else:
+                    flash("Invalid password. Please try again.", "error")
+            else:
+                flash("No account found with this email. Please sign up first.", "error")
+        except Exception as e:
+            print(f"Login error: {e}")
+            import traceback
+            traceback.print_exc()
+            flash("An error occurred during login. Please try again.", "error")
 
     return render_template("login.html")
 
