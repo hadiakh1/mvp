@@ -23,6 +23,9 @@ class Config:
             # Render provides postgres:// but SQLAlchemy needs postgresql://
             if database_url.startswith("postgres://"):
                 database_url = database_url.replace("postgres://", "postgresql://", 1)
+            # Use psycopg3 (psycopg) connection string - supports Python 3.13
+            if database_url.startswith("postgresql://"):
+                database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
             SQLALCHEMY_DATABASE_URI = database_url
             print(f"Using PostgreSQL database from DATABASE_URL")
         else:
