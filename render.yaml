@@ -7,16 +7,14 @@ services:
     envVars:
       - key: SECRET_KEY
         sync: false
-      - key: USE_SQLITE
-        value: "true"
-      # Uncomment below to use PostgreSQL instead of SQLite
-      # - key: DATABASE_URL
-      #   fromDatabase:
-      #     name: lawyerconnect-db
-      #     property: connectionString
+      # Use PostgreSQL database (auto-set when database is linked)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lawyerconnectdb
+          property: connectionString
 
 databases:
-  - name: lawyerconnect-db
+  - name: lawyerconnectdb
     databaseName: lawyerconnect
     user: lawyerconnect
 
