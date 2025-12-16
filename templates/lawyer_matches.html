@@ -118,10 +118,10 @@
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Pricing</p>
             <div class="text-xs text-gray-700 space-y-1">
               {% if profile.hourly_rate > 0 %}
-              <p>Hourly: ${{ "%.0f"|format(profile.hourly_rate) }}/hr</p>
+              <p>Hourly: PKR {{ "%.0f"|format(profile.hourly_rate) }}/hr</p>
               {% endif %}
               {% if profile.fixed_rate_min > 0 or profile.fixed_rate_max > 0 %}
-              <p>Fixed: ${{ "%.0f"|format(profile.fixed_rate_min) }}{% if profile.fixed_rate_max > profile.fixed_rate_min %} - ${{ "%.0f"|format(profile.fixed_rate_max) }}{% endif %}</p>
+              <p>Fixed: PKR {{ "%.0f"|format(profile.fixed_rate_min) }}{% if profile.fixed_rate_max > profile.fixed_rate_min %} - PKR {{ "%.0f"|format(profile.fixed_rate_max) }}{% endif %}</p>
               {% endif %}
               {% if profile.accepts_contingency %}
               <p>Contingency: {{ "%.0f"|format(profile.contingency_percentage * 100) }}%</p>

@@ -60,7 +60,7 @@ class LawyerProfile(db.Model):
     case_success_rate = db.Column(db.Float, default=0.0, nullable=False)
     # Availability and pricing fields
     is_available = db.Column(db.Boolean, default=True, nullable=False)  # Available for new cases
-    hourly_rate = db.Column(db.Float, default=0.0, nullable=False)  # Hourly rate in USD
+    hourly_rate = db.Column(db.Float, default=0.0, nullable=False)  # Hourly rate in PKR
     fixed_rate_min = db.Column(db.Float, default=0.0, nullable=False)  # Minimum fixed fee
     fixed_rate_max = db.Column(db.Float, default=0.0, nullable=False)  # Maximum fixed fee
     accepts_contingency = db.Column(db.Boolean, default=False, nullable=False)  # Accepts contingency fees
@@ -85,8 +85,8 @@ class Issue(db.Model):
     description = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(100), nullable=False)
     # Client profile fields for matching
-    budget_min = db.Column(db.Float, default=0.0, nullable=False)  # Minimum budget in USD
-    budget_max = db.Column(db.Float, default=10000.0, nullable=False)  # Maximum budget in USD
+    budget_min = db.Column(db.Float, default=0.0, nullable=False)  # Minimum budget in PKR
+    budget_max = db.Column(db.Float, default=10000.0, nullable=False)  # Maximum budget in PKR
     urgency = db.Column(db.String(20), default="normal", nullable=False)  # low, normal, high, urgent
     preferred_pricing = db.Column(db.String(20), default="hourly", nullable=False)  # hourly, fixed, contingency
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

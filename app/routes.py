@@ -200,10 +200,10 @@ def submit_issue():
         
         # Client profile fields for matching (with defaults for backward compatibility)
         try:
-            budget_min = float(request.form.get("budget_min", 0) or 0)
+            budget_min = float(request.form.get("budget_min", 1000) or 1000)
             budget_max = float(request.form.get("budget_max", 10000) or 10000)
         except (ValueError, TypeError):
-            budget_min = 0.0
+            budget_min = 1000.0
             budget_max = 10000.0
         
         urgency = request.form.get("urgency", "normal")
